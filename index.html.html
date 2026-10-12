@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Oddbird – Spot the odd one out</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap">
+<style>
+:root{--ink:#141A2B;--paper:#F5F1E8;--coral:#FF5A3C;--card:#FBF9F4;--line:#D9D2C1;--mut:#5b6072;--bg:var(--paper);--tx:var(--ink);
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#141A2B;--tx:#F5F1E8;--mut:#b4b1a6;--line:#2c3350}}
+:root[data-theme="dark"]{--bg:#141A2B;--tx:#F5F1E8;--mut:#b4b1a6;--line:#2c3350}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font-family:Inter,"Helvetica Neue",Arial,sans-serif;line-height:1.5;overflow-x:hidden}
+#app{max-width:460px;margin:0 auto;padding:18px 20px 32px;min-height:100vh}
+h1,h2{font-weight:800;letter-spacing:-.03em;line-height:1.02;margin:0 0 10px}
+h1{font-size:2.6rem}h2{font-size:1.5rem}
+p{margin:0 0 12px}.mut{color:var(--mut);font-size:.9rem}
+.logo{display:flex;align-items:flex-end;gap:10px;margin-bottom:26px}
+.logo svg{height:34px;width:auto}.logo b{font-weight:800;font-size:2rem;letter-spacing:-.04em;line-height:1}
+input{width:100%;font:inherit;padding:13px 14px;border:1.5px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);margin-bottom:10px}
+input:focus-visible,button:focus-visible{outline:3px solid var(--coral);outline-offset:2px}
+button{font:inherit;font-weight:800;border:0;border-radius:12px;padding:15px 18px;cursor:pointer}
+.go{width:100%;background:var(--ink);color:var(--paper);font-size:1.1rem;margin-top:6px}
+:root[data-theme="dark"] .go,:root:not([data-theme="light"]) .go{background:var(--paper);color:var(--ink)}
+.rules{display:flex;gap:10px;margin:18px 0}
+.rules div{flex:1;border:1.5px solid var(--line);border-radius:12px;padding:12px;background:var(--card);color:var(--ink);font-size:.9rem}
+.rules .f{border-color:var(--coral)}
+.hud{display:flex;justify-content:space-between;font-weight:800;margin-bottom:8px}
+.bar{height:6px;background:var(--line);border-radius:3px;overflow:hidden;margin-bottom:16px}
+.bar i{display:block;height:100%;width:100%;background:var(--tx);transition:width 1s linear}
+.stage{position:relative;height:370px;touch-action:pan-y}
+.tx{position:absolute;inset:0 0 auto 0;background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:18px;padding:20px;user-select:none;touch-action:none;cursor:grab}
+.tx.back{transform:scale(.95) translateY(12px);opacity:.55}
+.tx .who{font-weight:600;font-size:1.05rem}
+.tx .amt{font-weight:800;font-size:2.6rem;letter-spacing:-.03em;margin:4px 0 6px}
+.tx ul{list-style:none;margin:10px 0 0;padding:0;font-size:.95rem}
+.tx li{border-top:1px solid var(--line);padding:7px 0}
+.stamp{position:absolute;top:16px;right:16px;font-weight:800;border:3px solid;border-radius:8px;padding:1px 10px;opacity:0;transform:rotate(7deg)}
+.stamp.f{color:var(--coral);border-color:var(--coral)}.stamp.r{color:var(--ink);border-color:var(--ink);left:16px;right:auto;transform:rotate(-7deg)}
+.btns{display:flex;gap:12px;margin-top:14px}
+.btns button{flex:1;font-size:1.05rem}
+.bf{background:var(--coral);color:var(--ink)}.br{background:transparent;border:2px solid var(--tx);color:var(--tx)}
+.big{font-weight:800;font-size:4.5rem;letter-spacing:-.05em;line-height:1}
+.gap{border-left:5px solid var(--coral);padding:4px 0 4px 14px;margin:14px 0}
+table{width:100%;border-collapse:collapse;margin:8px 0 6px;font-size:.95rem}
+td{padding:9px 6px;border-top:1px solid var(--line)}td.n{width:28px;color:var(--mut)}td.p{text-align:right;font-weight:800;white-space:nowrap}
+.sub{display:block;font-size:.78rem;color:var(--mut)}
+tr.bot td{color:var(--coral);font-weight:800;border-top:0}tr.bot .sub{color:var(--coral)}
+tr.me td{background:var(--card);color:var(--ink)}tr.me td.n,tr.me .sub{color:var(--mut)}
+.miss{background:var(--card);color:var(--ink);border:1.5px solid var(--line);border-radius:14px;padding:14px;margin:10px 0;font-size:.93rem}
+.miss b{display:block}.miss .k{font-size:.8rem;color:var(--mut);margin-bottom:2px}.miss .f{color:var(--coral)}
+.note{font-size:.8rem;color:var(--mut);margin-top:14px}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs><symbol id="b" viewBox="0 0 40 28"><path d="M2 8l9 3c1-6 7-9 12-7 4 1 6 4 6 8l9-2-2 5c0 7-6 11-14 11-10 0-16-5-20-18z" fill="currentColor"/><circle cx="21" cy="9" r="1.5" fill="var(--paper)"/></symbol></defs></svg>
+<div id="app"></div>
+<script>
+const T=[
+["The Hop & Anchor, Bermondsey","14.50","19:42","Card present, chip and PIN","Your regular after-work spot",0,"Small amount, familiar place, card physically there. Nothing odd."],
+["ElectroMax Online","1,899.00","03:12","Shipping to Lagos, Nigeria","20 minutes earlier: card used in Manchester",1,"A card can't be in Manchester and Nigeria 20 minutes apart. Classic impossible travel: the card details were copied."],
+["Tesco, Clapham","63.20","11:05","Card present","Thursday shop, as usual",0,"Same pattern as every other week."],
+["5 gift cards, £100 each","500.00","22:31","Site never used before","5 purchases in 4 minutes",1,"Gift cards are fast to resell and hard to trace. Rapid repeat buys on a new site are a red flag."],
+["Netflix","12.99","06:00","Recurring subscription","Same amount every month",0,"A recurring charge identical to the last ones is routine."],
+["Unknown site, 3 test charges","0.50","02:40","3 payments of £0.50 in 1 minute","Followed by an attempt for £900",1,"Fraudsters test a stolen card with tiny amounts to see if it works before draining it."],
+["Avanti West Coast","42.90","08:15","Online purchase","London to Birmingham, a route you've done before",0,"Consistent with your habits."],
+["Urgent transfer to overseas IBAN","4,950.00","17:55","New payee","Email 'from the CEO': 'keep this between us'",1,"CEO fraud. The amount sits just under the £5,000 approval limit on purpose, and the urgency is there to skip your checks."],
+["Boots Pharmacy","27.80","10:20","Card present","Near home",0,"Small amount, usual area."],
+["Unknown crypto exchange","3,000.00","04:08","First ever transaction there","Phone number changed 1 hour earlier",1,"New phone number followed by money moving is the signature of an account takeover."],
+["Rent, Rossi Lettings","850.00","09:00","Transfer on the 1st","Same account for 14 months",0,"Exactly as always."],
+["Hotel Palm, Dubai","2,300.00","15:47","Online booking","At the same moment the app was used in London",1,"Spend in a place you aren't, while your phone is somewhere else."],
+["Spotify","11.99","06:00","Recurring subscription","Same amount every month",0,"Routine."],
+["New supplier 'Logix Ltd'","999.99","11:02","3 identical payments in 2 minutes","Supplier created yesterday",1,"Identical repeats to a brand-new supplier: duplicate payment or fake invoice. The odd figure keeps each one under a review threshold."],
+["Pret A Manger","3.20","07:50","Card present","Your morning coffee",0,"Routine."],
+["Invoice, Hartley Farms","1,200.00","14:30","Bank details unchanged","Long-standing supplier, usual amount",0,"Same supplier, same account, same amount."],
+["Invoice, Hartley Farms","1,200.00","14:35","Bank details changed yesterday, by email","Long-standing supplier, new account",1,"Same invoice, new account details sent by email. That's bank-detail-change fraud. Always confirm by phone."],
+["Amazon","34.90","20:12","Online purchase","Delivered to your home address",0,"Routine."],
+["Refund to a stranger","2,000.00","16:20","£2,500 sent to you 'by mistake'","They ask for £2,000 back, fast",1,"The first payment is fake or stolen and will be reversed. Send money back and the loss is yours."],
+["Trattoria Roma, Soho","86.00","21:10","Card present","Dinner out, seen before",0,"Fits your profile."]
+].map(a=>({n:a[0],a:a[1],t:a[2],d1:a[3],d2:a[4],f:a[5],e:a[6]}));
+
+const $=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const birds=(n)=>Array.from({length:n},(_,k)=>`<svg style="color:${k==3?'var(--coral)':'var(--tx)'}" viewBox="0 0 40 28"><use href="#b"/></svg>`).join('');
+const logo=`<div class="logo"><span style="display:flex;gap:4px;align-items:flex-end">${birds(5)}</span><b>oddbird</b></div>`;
+let deck,i,ans,left,timer,t0,db=null,me={name:'',co:''};
+
+try{window.claude&&claude.use("db").then(d=>{db=d}).catch(()=>{})}catch(e){}
+
+function intro(){
+$.innerHTML=`${logo}<h1>Spot the odd one out.</h1>
+<p>Twenty transactions. Sixty seconds. Some are fine, some are not. Make the call, one swipe at a time.</p>
+<div class="rules"><div class="f"><b>← Fraud</b><br>Swipe left</div><div><b>Legit →</b><br>Swipe right</div></div>
+<input id="nm" placeholder="Your name" maxlength="24" autocomplete="off">
+<input id="co" placeholder="Firm (optional)" maxlength="28" autocomplete="off">
+<button class="go" id="s">Start the clock</button>
+<p class="note">Your name and firm appear on the room leaderboard. Oddbird already played. It won't be humble about it.</p>`;
+document.getElementById('s').onclick=()=>{me.name=document.getElementById('nm').value.trim()||'Anonymous';me.co=document.getElementById('co').value.trim();start();};
+}
+
+function start(){
+deck=[...T].sort(()=>Math.random()-.5);i=0;ans=[];left=60;t0=Date.now();
+$.innerHTML=`<div class="hud"><span id="c">1 / 20</span><span id="tm">60s</span></div><div class="bar"><i id="b"></i></div>
+<div class="stage" id="st"></div>
+<div class="btns"><button class="bf" id="bf">← Fraud</button><button class="br" id="br">Legit →</button></div>`;
+document.getElementById('bf').onclick=()=>decide(1);document.getElementById('br').onclick=()=>decide(0);
+draw();
+setTimeout(()=>{document.getElementById('b').style.width='0%'},50);
+timer=setInterval(()=>{left--;document.getElementById('tm').textContent=left+'s';if(left<=0)end();},1000);
+}
+
+const card=(x,c)=>`<div class="tx ${c}"><span class="stamp f" id="sf">FRAUD</span><span class="stamp r" id="sr">LEGIT</span><div class="who">${x.n}</div><div class="amt">£${x.a}</div><ul><li>${x.t}</li><li>${x.d1}</li><li>${x.d2}</li></ul></div>`;
+
+function draw(){
+if(i>=20)return end();
+document.getElementById('c').textContent=(i+1)+' / 20';
+const st=document.getElementById('st');
+st.innerHTML=(deck[i+1]?card(deck[i+1],'back'):'')+card(deck[i],'');
+const el=st.lastElementChild,sf=el.querySelector('#sf'),sr=el.querySelector('#sr');let sx=0,dx=0,dr=false;
+el.onpointerdown=e=>{dr=true;sx=e.clientX;el.setPointerCapture(e.pointerId)};
+el.onpointermove=e=>{if(!dr)return;dx=e.clientX-sx;el.style.transform=`translateX(${dx}px) rotate(${dx/20}deg)`;sf.style.opacity=dx<0?Math.min(1,-dx/90):0;sr.style.opacity=dx>0?Math.min(1,dx/90):0};
+el.onpointerup=()=>{if(!dr)return;dr=false;if(dx<-80)decide(1);else if(dx>80)decide(0);else{el.style.transform='';sf.style.opacity=sr.style.opacity=0}dx=0};
+}
+function decide(v){if(i>=20||!timer)return;ans[i]=v;i++;draw()}
+document.addEventListener('keydown',e=>{if(e.key==='ArrowLeft')decide(1);if(e.key==='ArrowRight')decide(0)});
+
+async function end(){
+if(!timer)return;clearInterval(timer);timer=null;
+const secs=Math.min(60,Math.round((Date.now()-t0)/1000));
+let ok=0;const miss=[];
+deck.forEach((x,k)=>{if(ans[k]===undefined)miss.push([x,'n']);else if(ans[k]===x.f)ok++;else miss.push([x,'w'])});
+const pct=ok*5;
+const run={name:me.name,co:me.co,pct,secs,ts:Date.now()};
+let field=null,live=false;
+if(db){try{await db.collection("runs").add(run);const s=await db.collection("runs").limit(500).get();field=s.docs.map(d=>d.data());live=true}catch(e){field=null}}
+if(!field){field=[run];}
+const seen=field.some(f=>f.ts===run.ts&&f.name===run.name);if(!seen)field.push(run);
+const others=field.filter(f=>!(f.ts===run.ts&&f.name===run.name));
+const rank=[...field].sort((a,b)=>b.pct-a.pct||a.secs-b.secs);
+const myPos=rank.findIndex(f=>f.ts===run.ts&&f.name===run.name)+1;
+const beat=others.length?Math.round(others.filter(f=>f.pct<pct).length/others.length*100):null;
+const avg=Math.round(field.reduce((s,f)=>s+f.pct,0)/field.length);
+const top=rank.slice(0,8);if(myPos>8)top.push(run);
+const line=pct>=90?"Sharp. Don't tell Oddbird you're this close.":pct>=70?"Solid eye. The odd ones that got through are below.":pct>=50?"About what a human eye manages at speed. That's the point.":"Don't worry. Twenty is easy. Twenty thousand a day isn't.";
+$.innerHTML=`${logo}<div class="big">${pct}%</div>
+<p><b>${ok} of 20 right</b>${ok<20&&ans.length<20?`, ${20-ans.length} unanswered`:''} in ${secs}s. ${line}</p>
+<div class="gap"><b>Oddbird: 100% in 0.4s.</b><br>You: ${pct}%. The gap: ${100-pct} points.${live&&beat!==null?`<br>You beat ${beat}% of the room. Room average: ${avg}%.`:''}</div>
+<h2>Room leaderboard</h2>
+<table><tr class="bot"><td class="n">1</td><td>Oddbird<span class="sub">AI financial watchdog</span></td><td class="p">100%</td></tr>
+${top.map((f,k)=>{const me2=f.ts===run.ts&&f.name===run.name;return `<tr class="${me2?'me':''}"><td class="n">${me2?myPos+1:k+2}</td><td>${esc(f.name)}${me2?' (you)':''}<span class="sub">${esc(f.co||'')} ${f.secs}s</span></td><td class="p">${f.pct}%</td></tr>`}).join('')}</table>
+<p class="note">${live?`Live room: ${field.length} player${field.length>1?'s':''} so far. Oddbird always ranks first, because Oddbird is the benchmark.`:'Demo mode: the shared room is offline here, so only your score shows. Oddbird always ranks first.'}</p>
+<h2 style="margin-top:22px">${miss.length?'What you missed':'Nothing missed'}</h2>
+${miss.length?'':'<p>Clean sweep. Now picture 20,000 of those a day.</p>'}
+${miss.map(([x,k])=>`<div class="miss"><div class="k">${k==='n'?'Ran out of time':x.f?'Fraud, called legit':'Legit, called fraud'}</div><b class="${x.f?'f':''}">${esc(x.n)}, £${x.a}</b>${esc(x.e)}</div>`).join('')}
+<button class="go" id="again">Play again</button>`;
+document.getElementById('again').onclick=intro;
+}
+intro();
+</script>
+</body>
+</html>
